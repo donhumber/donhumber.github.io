@@ -1,1 +1,16 @@
-hello
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Vanilla JS - Asteroids</title>
+</head>
+<body>
+<canvas id="asteroids" ></canvas>
+</body>
+<script src="/canvas-galaxy/asteroids.js"></script>
+<script>
+	document.getElementById("asteroids").width = window.innerWidth;
+	document.getElementById("asteroids").height = window.innerHeight;
+	var asteroides = Asteroids("asteroids",40,10);
+</script>
+</html>
