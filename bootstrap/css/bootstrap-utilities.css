@@ -342,6 +342,9 @@
 .opacity-75 {
   opacity: 0.75 !important;
 }
+.opacity-90 {
+  opacity: 0.75 !important;
+}
 
 .opacity-100 {
   opacity: 1 !important;
@@ -619,6 +622,9 @@
 
 .border-opacity-75 {
   --bs-border-opacity: 0.75;
+}
+.border-opacity-90 {
+  --bs-border-opacity: 0.90;
 }
 
 .border-opacity-100 {
@@ -1567,6 +1573,9 @@
 
 .bg-opacity-75 {
   --bs-bg-opacity: 0.75;
+}
+.bg-opacity-90 {
+  --bs-bg-opacity: 0.90;
 }
 
 .bg-opacity-100 {

@@ -1,18 +1,70 @@
 <html>
 <head>
-<link rel="stylesheet" href="style.css">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link href="css/bootstrap.min.css" rel="stylesheet" >
-<script src="js/bootstrap.bundle.min.js" ></script>
+<link href="css/style.css" rel="stylesheet" >
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet" >
+<link href="bootstrap/css/bootstrap-utilities.css" rel="stylesheet" >
+<link href="css/fontawesome.css" rel="stylesheet" >
+<link href="css/brands.min.css" rel="stylesheet" >
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
 <title>Donhumber website</title>
 </head>
-<body>
-<canvas id="asteroids" ></canvas>
+<body class="text-bg-dark d-flex flex-column h-100">
+	<header class="d-flex flex-wrap text-bg-dark py-1 mb-4 border-bottom">
+		<a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-light text-decoration-none">
+			<p class="fs-4 mb-0"><img src="favicon/favicon-32x32.png"></img>
+			Don<span class="text-Primary">humber</span></p>
+		</a>
+	</header>
+	<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+		<main class="">
+			<div class="container text-center rounded bg-light bg-opacity-10">
+				<div class="row">
+					<div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+						<img src="images/avatar.png" class="rounded-circle img-fluid bg-dark " style="min-width:150px; max-width:250px;" alt="Avatar"></img>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
+						<p class="display-6">Ups... parece que llegaste antes de lo esperado <br>Actualmente estoy trabajando para brindarte la mejor experiencia <br>Puedes contactarme en:</p>
+						<div class="container text-center ">
+							<div class="row">
+								<div class="col-sm-12 col-md-2 ">
+									<a class="link-light" target="_blank" href="https://www.linkedin.com/in/donhumber/" ><i class="fa-brands fa-linkedin fa-3x"></i></a>
+								</div>
+								<div class="col-sm-12 col-md-2">
+								<a class="link-light" target="_blank" href="https://www.facebook.com/oscar.garcia.russi" ><i class="fa-brands fa-facebook fa-3x"></i></a>
+								</div>
+								<div class="col-sm-12 col-md-2">
+								<a class="link-light" target="_blank" href="https://wa.me/573112133589"><i class="fa-brands fa-whatsapp fa-3x"></i></a>
+								</div>
+								<div class="col-sm-12 col-md-2">
+								<a class="link-light" target="_blank" href="http://m.me/oscar.garcia.russi" ><i class="fa-brands fa-facebook-messenger fa-3x"></i></a>
+								</div>
+								<div class="col-sm-12 col-md-2">
+								<a class="link-light" target="_blank" href="https://github.com/donhumber" ><i class="fa-brands fa-github fa-3x"></i></a>
+								</div>
+								<div class="col-sm-12 col-md-2">
+								<a class="link-light" target="_blank" href="https://join.skype.com/invite/zFhWdcel73IV" ><i class="fa-brands fa-skype fa-3x"></i></a>
+								</div>
+							</div>
+						</div>
+						<hr>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<footer class=" text-white-50 text-center bg-secondary">
+		<p>© 2022 Donhumber. Todos los derechos reservados.</p>
+	</footer>
+	<canvas id="asteroids" class="asteroids" ></canvas>
 </body>
-<script src="../canvas-galaxy/asteroids.js"></script>
+<script src="canvas-galaxy/asteroids.js"></script>
+<script src="bootstrap/js/bootstrap.bundle.min.js" ></script>
 <script>
 	document.getElementById("asteroids").width = window.innerWidth;
 	document.getElementById("asteroids").height = window.innerHeight;
-	var asteroides = Asteroids("asteroids",40,10);
+	var asteroides = Asteroids("asteroids",40,10,200,'rgb(17 24 39)');
 </script>
 </html>
