@@ -1,0 +1,25 @@
+//Created by Donhumber
+//https://garciarussi.com
+class Galaxy {
+    _Canvas;
+    _Mouse;
+    _PlanetsImgUrl;
+    _PlanetsImg;
+    _AsteroidsCount;
+    _PlanetsCount;
+    _StarsCount;
+    _PlanetsList;
+    _AsteroidsList;
+    _StarsList;
+    //lpcanvas,lpasteroids=40,lpplanets=10,lpstars=200,lpbackground = "rgb(0,0,0)"
+    constructor(_Canvas, _Asteroids, Planets, _Stars, _Background) {
+        this._Canvas = _Canvas;
+    }
+    set Canvas(value) {
+        this._Canvas = value;
+    }
+    get Canvas() {
+        return this._Canvas;
+    }
+}
+let actor = new Galaxy('Haider Malik');
