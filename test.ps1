@@ -1,7 +1,105 @@
+$ErrorActionPreference = "SilentlyContinue"
 
 Write-Host "====================================="
 Write-Host "     Limpiando computador"
 Write-Host "====================================="
+
+
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
+
+$carpeta = "C:\Instaladores"
+$archivo = Join-Path $carpeta "fondocomputadores.png"
+
+# Se divide la URL para evitar problemas al copiar el script
+$url = "https://" + "garciarussi.com/fondocomputadores.png"
+
+# ============================================================
+# CREAR CARPETA SI NO EXISTE
+# ============================================================
+
+if (-not (Test-Path $carpeta)) {
+    New-Item -Path $carpeta -ItemType Directory -Force | Out-Null
+}
+
+# ============================================================
+# DESCARGAR LA IMAGEN SI NO EXISTE
+# ============================================================
+
+if (-not (Test-Path $archivo)) {
+
+    try {
+
+        [Net.ServicePointManager]::SecurityProtocol = `
+            [Net.SecurityProtocolType]::Tls12
+
+        Invoke-WebRequest `
+            -Uri $url `
+            -OutFile $archivo `
+            -UseBasicParsing `
+            -ErrorAction SilentlyContinue
+
+    }
+    catch {
+        exit 0
+    }
+}
+
+# ============================================================
+# COMPROBAR QUE LA IMAGEN EXISTE ANTES DE CONTINUAR
+# ============================================================
+
+if (-not (Test-Path $archivo)) {
+    exit 0
+}
+
+# ============================================================
+# CONFIGURAR EL FONDO DE WINDOWS
+# ============================================================
+
+Set-ItemProperty `
+    -Path "HKCU:\Control Panel\Desktop" `
+    -Name "WallpaperStyle" `
+    -Value "10" `
+    -ErrorAction SilentlyContinue
+
+Set-ItemProperty `
+    -Path "HKCU:\Control Panel\Desktop" `
+    -Name "TileWallpaper" `
+    -Value "0" `
+    -ErrorAction SilentlyContinue
+
+# ============================================================
+# APLICAR EL FONDO DE PANTALLA
+# ============================================================
+
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public class Wallpaper {
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern int SystemParametersInfo(
+        int uAction,
+        int uParam,
+        string lpvParam,
+        int fuWinIni
+    );
+}
+"@
+
+# SPI_SETDESKWALLPAPER = 20
+# SPIF_UPDATEINIFILE = 1
+# SPIF_SENDCHANGE    = 2
+
+[Wallpaper]::SystemParametersInfo(
+    20,
+    0,
+    $archivo,
+    3
+) | Out-Null
+
 
 Write-Host "     Desinstalando programas no deseados"
 $ErrorActionPreference = 'SilentlyContinue'
