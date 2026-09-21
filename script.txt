@@ -1,0 +1,21 @@
+Write-Host "====================================="
+Write-Host "     PRUEBA DE POWERSHELL"
+Write-Host "====================================="
+
+Write-Host ""
+Write-Host "Mensaje 1: El script se ejecuto correctamente."
+Start-Sleep -Seconds 1
+
+Write-Host "Mensaje 2: El archivo fue descargado desde Internet."
+Start-Sleep -Seconds 1
+
+Write-Host "Mensaje 3: PowerShell esta ejecutando el contenido."
+Start-Sleep -Seconds 1
+
+Write-Host "Mensaje 4: La prueba fue exitosa."
+Start-Sleep -Seconds 1
+
+Write-Host ""
+Write-Host "====================================="
+Write-Host "          FIN DE LA PRUEBA"
+Write-Host "====================================="
