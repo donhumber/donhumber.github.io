@@ -103,19 +103,17 @@ public class Wallpaper {
 Write-Host "     Desinstalando programas no deseados"
 $ErrorActionPreference = 'SilentlyContinue'
 
-# Programas que se desean desinstalar
-$programas = @(
-    "*Google Chrome*",
-    "*Opera*",
-    "*Opera GX*"
-)
+# ============================================================
+# CERRAR PROCESOS
+# ============================================================
 
-# Cerrar procesos relacionados
 $procesos = @(
     "chrome",
     "opera",
     "opera_gx",
-    "launcher"
+    "launcher",
+    "opera_autoupdate",
+    "opera_crashreporter"
 )
 
 foreach ($proceso in $procesos) {
@@ -123,14 +121,48 @@ foreach ($proceso in $procesos) {
         Stop-Process -Force -ErrorAction SilentlyContinue
 }
 
-# Ubicaciones del registro donde pueden estar registrados los programas
+
+# ============================================================
+# DESINSTALAR OPERA GX
+# ============================================================
+
+$operaGXLaunchers = @(
+    "$env:LOCALAPPDATA\Programs\Opera GX\launcher.exe",
+    "$env:ProgramFiles\Opera GX\launcher.exe",
+    "${env:ProgramFiles(x86)}\Opera GX\launcher.exe"
+)
+
+foreach ($launcher in $operaGXLaunchers) {
+
+    if (Test-Path $launcher) {
+
+        Write-Host "Desinstalando Opera GX..."
+
+        Start-Process `
+            -FilePath $launcher `
+            -ArgumentList "--uninstall", "--runimmediately", "--deleteuserprofile=1" `
+            -Wait `
+            -WindowStyle Hidden `
+            -ErrorAction SilentlyContinue
+    }
+}
+
+
+# ============================================================
+# DESINSTALAR CHROME Y OPERA NORMAL
+# ============================================================
+
+$programas = @(
+    "*Google Chrome*",
+    "*Opera*"
+)
+
 $uninstallPaths = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
 )
 
-# Buscar y desinstalar
 foreach ($path in $uninstallPaths) {
 
     $apps = Get-ItemProperty $path -ErrorAction SilentlyContinue
@@ -138,7 +170,10 @@ foreach ($path in $uninstallPaths) {
     foreach ($app in $apps) {
 
         if ($app.DisplayName -and
-            ($programas | Where-Object { $app.DisplayName -like $_ })) {
+            ($programas | Where-Object {
+                $app.DisplayName -like $_ -and
+                $app.DisplayName -notlike "*Opera GX*"
+            })) {
 
             if ($app.UninstallString) {
 
@@ -151,6 +186,7 @@ foreach ($path in $uninstallPaths) {
                 else {
                     $parts = $uninstall -split '\s+', 2
                     $exe = $parts[0]
+
                     $args = if ($parts.Count -gt 1) {
                         $parts[1]
                     }
@@ -161,7 +197,7 @@ foreach ($path in $uninstallPaths) {
 
                 Start-Process `
                     -FilePath $exe `
-                    -ArgumentList "$args --force-uninstall" `
+                    -ArgumentList $args `
                     -Wait `
                     -WindowStyle Hidden `
                     -ErrorAction SilentlyContinue
@@ -170,7 +206,11 @@ foreach ($path in $uninstallPaths) {
     }
 }
 
-# Eliminar carpetas residuales
+
+# ============================================================
+# ELIMINAR CARPETAS RESIDUALES
+# ============================================================
+
 $carpetas = @(
     "$env:ProgramFiles\Google\Chrome",
     "${env:ProgramFiles(x86)}\Google\Chrome",
@@ -193,12 +233,14 @@ $carpetas = @(
 foreach ($carpeta in $carpetas) {
 
     if (Test-Path $carpeta) {
+
         Remove-Item $carpeta `
             -Recurse `
             -Force `
             -ErrorAction SilentlyContinue
     }
 }
+
 
 # ============================================
 # CONFIGURACIÓN DE ACCESOS DIRECTOS
