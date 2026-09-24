@@ -12,7 +12,7 @@ $carpeta = "C:\Instaladores"
 $archivo = Join-Path $carpeta "fondocomputadores.png"
 
 # Se divide la URL para evitar problemas al copiar el script
-$url = "https://" + "garciarussi.com/fondocomputadores.png"
+$url = "https://" + "donhumber.github.io/fondocomputadores.png"
 
 # ============================================================
 # CREAR CARPETA SI NO EXISTE
@@ -199,3 +199,66 @@ foreach ($carpeta in $carpetas) {
             -ErrorAction SilentlyContinue
     }
 }
+
+# ============================================
+# CONFIGURACIÓN DE ACCESOS DIRECTOS
+# ============================================
+
+$escritorio = [Environment]::GetFolderPath("Desktop")
+
+$accesos = @(
+    @{
+        Nombre = "Microsoft Edge.lnk"
+        Destino = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+        Argumentos = ""
+    },
+    @{
+        Nombre = "Mi Programa.lnk"
+        Destino = "C:\MiPrograma\programa.exe"
+        Argumentos = ""
+    }
+)
+
+
+# ============================================
+# ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
+# ============================================
+
+$accesosPermitidos = $accesos.Nombre
+
+#Get-ChildItem -Path $escritorio -Filter "*.lnk" -File -ErrorAction SilentlyContinue |
+#    ForEach-Object {
+#
+#        if ($_.Name -notin $accesosPermitidos) {
+#
+#            Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+#
+#        }
+#    }
+
+
+# ============================================
+# CREAR ACCESOS DIRECTOS QUE NO EXISTAN
+# ============================================
+
+$WshShell = New-Object -ComObject WScript.Shell
+
+foreach ($acceso in $accesos) {
+
+    $rutaAcceso = Join-Path $escritorio $acceso.Nombre
+
+    if (-not (Test-Path $rutaAcceso)) {
+
+        $shortcut = $WshShell.CreateShortcut($rutaAcceso)
+
+        $shortcut.TargetPath = $acceso.Destino
+        $shortcut.Arguments = $acceso.Argumentos
+
+        if (Test-Path $acceso.Destino -PathType Leaf) {
+            $shortcut.WorkingDirectory = Split-Path $acceso.Destino
+        }
+
+        $shortcut.Save()
+    }
+}
+```
