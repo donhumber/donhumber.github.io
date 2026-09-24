@@ -303,22 +303,90 @@ foreach ($acceso in $accesos) {
         $shortcut.Save()
     }
 }
+
 # ============================================================
 # LIMPIAR MICROSOFT EDGE
 # ============================================================
 
-Write-Host "Limpiando perfiles y datos de Microsoft Edge..."
+Write-Host "     Limpiando perfiles y datos de Microsoft Edge..."
 
-# Cerrar Edge
+$edgeUserData = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
+
+# ------------------------------------------------------------
+# Cerrar Microsoft Edge
+# ------------------------------------------------------------
+
 Get-Process -Name "msedge" -ErrorAction SilentlyContinue |
     Stop-Process -Force -ErrorAction SilentlyContinue
 
-# Eliminar todos los perfiles y datos locales de Edge
-$edgeUserData = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
+# Pequeña espera para asegurar que los archivos queden libres
+Start-Sleep -Seconds 2
+
+# ------------------------------------------------------------
+# Comprobar que existe la instalación de datos
+# ------------------------------------------------------------
 
 if (Test-Path $edgeUserData) {
-    Remove-Item $edgeUserData `
-        -Recurse `
-        -Force `
-        -ErrorAction SilentlyContinue
+
+    # --------------------------------------------------------
+    # Eliminar perfiles secundarios
+    # Conservamos únicamente "Default"
+    # --------------------------------------------------------
+
+    Get-ChildItem $edgeUserData -Directory -ErrorAction SilentlyContinue |
+        Where-Object {
+            $_.Name -like "Profile *"
+        } |
+        ForEach-Object {
+
+            Write-Host "Eliminando perfil de Edge: $($_.Name)"
+
+            Remove-Item $_.FullName `
+                -Recurse `
+                -Force `
+                -ErrorAction SilentlyContinue
+        }
+
+    # --------------------------------------------------------
+    # Perfil principal
+    # --------------------------------------------------------
+
+    $edgeDefault = Join-Path $edgeUserData "Default"
+
+    if (Test-Path $edgeDefault) {
+
+        # Archivos relacionados con historial,
+        # credenciales, cookies y datos personales
+        $archivosEdge = @(
+            "History",
+            "History-journal",
+            "Visited Links",
+
+            "Login Data",
+            "Login Data For Account",
+            "Login Data-journal",
+
+            "Web Data",
+            "Web Data-journal",
+
+            "Cookies",
+            "Cookies-journal"
+        )
+
+        foreach ($archivo in $archivosEdge) {
+
+            $ruta = Join-Path $edgeDefault $archivo
+
+            if (Test-Path $ruta) {
+
+                Write-Host "Eliminando: $archivo"
+
+                Remove-Item $ruta `
+                    -Force `
+                    -ErrorAction SilentlyContinue
+            }
+        }
+    }
 }
+
+Write-Host "     Limpieza de Microsoft Edge completada."
