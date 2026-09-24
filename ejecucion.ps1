@@ -303,4 +303,22 @@ foreach ($acceso in $accesos) {
         $shortcut.Save()
     }
 }
-```
+# ============================================================
+# LIMPIAR MICROSOFT EDGE
+# ============================================================
+
+Write-Host "Limpiando perfiles y datos de Microsoft Edge..."
+
+# Cerrar Edge
+Get-Process -Name "msedge" -ErrorAction SilentlyContinue |
+    Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Eliminar todos los perfiles y datos locales de Edge
+$edgeUserData = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
+
+if (Test-Path $edgeUserData) {
+    Remove-Item $edgeUserData `
+        -Recurse `
+        -Force `
+        -ErrorAction SilentlyContinue
+}
