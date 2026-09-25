@@ -315,17 +315,17 @@ $accesos = @(
         Argumentos = ""
     },
     @{
-        Nombre = "Código Verde"
+        Nombre = "Código Verde.lnk"
         Destino = "C:\Program Files (x86)\Código Verde\Código Verde.exe"
         Argumentos = ""
     },
     @{
-        Nombre = "TuxTyping"
+        Nombre = "TuxTyping.lnk"
         Destino = "C:\Program Files (x86)\TuxType\TuxType.exe"
         Argumentos = ""
     },
     @{
-        Nombre = "RapidTyping 5"
+        Nombre = "RapidTyping 5.lnk"
         Destino = "C:\Program Files\RapidTyping 5\RapidTyping.exe"
         Argumentos = ""
     }
