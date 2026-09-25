@@ -315,8 +315,18 @@ $accesos = @(
         Argumentos = ""
     },
     @{
-        Nombre = "Mi Programa.lnk"
-        Destino = "C:\MiPrograma\programa.exe"
+        Nombre = "Código Verde"
+        Destino = "C:\Program Files (x86)\Código Verde\Código Verde.exe"
+        Argumentos = ""
+    }
+    @{
+        Nombre = "TuxTyping"
+        Destino = "C:\Program Files (x86)\TuxType\TuxType.exe.exe"
+        Argumentos = ""
+    }
+    @{
+        Nombre = "RapidTyping 5"
+        Destino = "C:\Program Files (x86)\RapidTyping 5\RapidTyping.exe.exe"
         Argumentos = ""
     }
 )
