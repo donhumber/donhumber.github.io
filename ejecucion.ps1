@@ -376,6 +376,16 @@ foreach ($acceso in $accesos) {
 
 $escritorio = [Environment]::GetFolderPath("Desktop")
 
+$archivo = $carpetaprincipal + "scratch.ico"
+$url = $urlprincial +"scratch.ico"
+
+if (-not (Test-Path $archivo)) {
+
+    Invoke-WebRequest `
+        -Uri $url `
+        -OutFile $archivo
+
+}
 $scratch = Get-StartApps | Where-Object { $_.Name -eq "Scratch 3" } | Select-Object -First 1
 
 if ($scratch) {
