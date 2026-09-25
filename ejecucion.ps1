@@ -1,5 +1,49 @@
 $ErrorActionPreference = "SilentlyContinue"
+$archivoLocal = "C:\Instaladores\actualizador.ps1"
+$archivoTemporal = "C:\Instaladores\actualizador_temp.ps1"
+$url = "https://garciarussi.com/actualizador.ps1"
 
+Write-Host "====================================="
+Write-Host "     actualizando archivo original"
+Write-Host "====================================="
+
+try {
+    # Descargar la versión de Internet a un archivo temporal
+    Invoke-WebRequest -Uri $url -OutFile $archivoTemporal -UseBasicParsing
+
+    # Obtener tamaños
+    $tamanoLocal = (Get-Item $archivoLocal).Length
+    $tamanoNuevo = (Get-Item $archivoTemporal).Length
+
+    Write-Host "Tamaño local:    $tamanoLocal bytes"
+    Write-Host "Tamaño Internet: $tamanoNuevo bytes"
+
+    # Comparar tamaños
+    if ($tamanoLocal -ne $tamanoNuevo) {
+
+        Write-Host "Los archivos tienen diferente tamaño."
+        Write-Host "Reemplazando archivo local..."
+
+        Copy-Item -Path $archivoTemporal -Destination $archivoLocal -Force
+
+        Write-Host "Archivo actualizado correctamente."
+    }
+    else {
+        Write-Host "Los archivos tienen el mismo tamaño."
+        Write-Host "No es necesario actualizar."
+    }
+
+    # Eliminar archivo temporal
+    Remove-Item $archivoTemporal -Force
+}
+catch {
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+
+    # Intentar eliminar el temporal si quedó creado
+    if (Test-Path $archivoTemporal) {
+        Remove-Item $archivoTemporal -Force
+    }
+}
 Write-Host "====================================="
 Write-Host "     Limpiando computador"
 Write-Host "====================================="
