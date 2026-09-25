@@ -3,6 +3,7 @@ $archivoLocal = "C:\Instaladores\actualizador.ps1"
 $archivoTemporal = "C:\Instaladores\actualizador_temp.ps1"
 $url = "https://garciarussi.com/actualizador.ps1"
 
+<# 
 Write-Host "====================================="
 Write-Host "     actualizando archivo original"
 Write-Host "====================================="
@@ -47,7 +48,7 @@ catch {
 Write-Host "====================================="
 Write-Host "     Limpiando computador"
 Write-Host "====================================="
-
+#>
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
