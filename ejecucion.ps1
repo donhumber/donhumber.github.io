@@ -321,12 +321,12 @@ $accesos = @(
     },
     @{
         Nombre = "TuxTyping"
-        Destino = "C:\Program Files (x86)\TuxType\TuxType.exe.exe"
+        Destino = "C:\Program Files (x86)\TuxType\TuxType.exe"
         Argumentos = ""
     },
     @{
         Nombre = "RapidTyping 5"
-        Destino = "C:\Program Files (x86)\RapidTyping 5\RapidTyping.exe.exe"
+        Destino = "C:\Program Files\RapidTyping 5\RapidTyping.exe"
         Argumentos = ""
     }
 )
@@ -338,15 +338,15 @@ $accesos = @(
 
 $accesosPermitidos = $accesos.Nombre
 
-#Get-ChildItem -Path $escritorio -Filter "*.lnk" -File -ErrorAction SilentlyContinue |
-#    ForEach-Object {
-#
-#        if ($_.Name -notin $accesosPermitidos) {
-#
-#            Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
-#
-#        }
-#    }
+Get-ChildItem -Path $escritorio -Filter "*.lnk" -File -ErrorAction SilentlyContinue |
+    ForEach-Object {
+
+        if ($_.Name -notin $accesosPermitidos) {
+
+            Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+
+        }
+    }
 
 
 # ============================================
