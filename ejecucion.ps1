@@ -323,7 +323,7 @@ $accesos = @(
         Nombre = "Tux Typing.lnk"
         Destino = "C:\Program Files (x86)\TuxType\TuxType.exe"
         Argumentos = ""
-        Icono = "C:\Program Files (x86)\TuxType\tuxtype.ico"
+        Icono = "C:\Program Files (x86)\TuxType\data\tuxtype.ico"
     },
     @{
         Nombre = "RapidTyping 5.lnk"
