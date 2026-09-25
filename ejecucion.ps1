@@ -304,6 +304,26 @@ foreach ($acceso in $accesos) {
     }
 }
 
+$escritorio = [Environment]::GetFolderPath("Desktop")
+
+$scratch = Get-StartApps | Where-Object { $_.Name -eq "Scratch 3" } | Select-Object -First 1
+
+if ($scratch) {
+
+    $rutaAcceso = Join-Path $escritorio "Scratch 3.lnk"
+
+    if (-not (Test-Path $rutaAcceso)) {
+
+        $WshShell = New-Object -ComObject WScript.Shell
+        $acceso = $WshShell.CreateShortcut($rutaAcceso)
+
+        $acceso.TargetPath = "explorer.exe"
+        $acceso.IconLocation = "C:\Instaladores\Scratch.ico"
+        $acceso.Arguments = "shell:AppsFolder\$($scratch.AppID)"
+        $acceso.Save()
+    }
+}
+
 # ============================================================
 # LIMPIAR MICROSOFT EDGE
 # ============================================================
