@@ -315,14 +315,15 @@ $accesos = @(
         Argumentos = ""
     },
     @{
-        Nombre = "Código Verde.lnk"
-        Destino = "C:\Program Files (x86)\Código Verde\Código Verde.exe"
+        Nombre = "C$([char]0x00F3)digo Verde.lnk"
+        Destino = "C:\Program Files (x86)\C$([char]0x00F3)digo Verde\C$([char]0x00F3)digo Verde.exe"
         Argumentos = ""
     },
     @{
-        Nombre = "TuxTyping.lnk"
+        Nombre = "Tux Typing.lnk"
         Destino = "C:\Program Files (x86)\TuxType\TuxType.exe"
         Argumentos = ""
+        Icono = "C:\Program Files (x86)\TuxType\tuxtype.ico"
     },
     @{
         Nombre = "RapidTyping 5.lnk"
@@ -331,6 +332,10 @@ $accesos = @(
     }
 )
 
+
+# ============================================
+# ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
+# ============================================
 
 # ============================================
 # ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
@@ -366,8 +371,14 @@ foreach ($acceso in $accesos) {
         $shortcut.TargetPath = $acceso.Destino
         $shortcut.Arguments = $acceso.Argumentos
 
+        # Configurar directorio de trabajo
         if (Test-Path $acceso.Destino -PathType Leaf) {
             $shortcut.WorkingDirectory = Split-Path $acceso.Destino
+        }
+
+        # Configurar icono solamente si fue especificado
+        if ($acceso.ContainsKey("Icono") -and (Test-Path $acceso.Icono)) {
+            $shortcut.IconLocation = $acceso.Icono
         }
 
         $shortcut.Save()
