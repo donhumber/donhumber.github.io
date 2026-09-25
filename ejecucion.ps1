@@ -1,172 +1,32 @@
+# ============================================================
+# CONFIGURACIÓN GENERAL
+# ============================================================
 $ErrorActionPreference = "SilentlyContinue"
-
-$urlprincial = "https://" + "garciarussi.com/"
-$carpetaprincipal   = "C:\Instaladores\"
-
-$archivoLocal = $carpetaprincipal + "actualizador.ps1"
-$archivoTemporal = $carpetaprincipal + "actualizador_temp.ps1"
-$url = $urlprincial + "actualizador.ps1"
-
-<# 
-Write-Host "====================================="
-Write-Host "     actualizando archivo original"
-Write-Host "====================================="
-
-try {
-    # Descargar la versión de Internet a un archivo temporal
-    Invoke-WebRequest -Uri $url -OutFile $archivoTemporal -UseBasicParsing
-
-    # Obtener tamaños
-    $tamanoLocal = (Get-Item $archivoLocal).Length
-    $tamanoNuevo = (Get-Item $archivoTemporal).Length
-
-    Write-Host "Tamaño local:    $tamanoLocal bytes"
-    Write-Host "Tamaño Internet: $tamanoNuevo bytes"
-
-    # Comparar tamaños
-    if ($tamanoLocal -ne $tamanoNuevo) {
-
-        Write-Host "Los archivos tienen diferente tamaño."
-        Write-Host "Reemplazando archivo local..."
-
-        Copy-Item -Path $archivoTemporal -Destination $archivoLocal -Force
-
-        Write-Host "Archivo actualizado correctamente."
-    }
-    else {
-        Write-Host "Los archivos tienen el mismo tamaño."
-        Write-Host "No es necesario actualizar."
-    }
-
-    # Eliminar archivo temporal
-    Remove-Item $archivoTemporal -Force
-}
-catch {
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-
-    # Intentar eliminar el temporal si quedó creado
-    if (Test-Path $archivoTemporal) {
-        Remove-Item $archivoTemporal -Force
-    }
-}
-Write-Host "====================================="
-Write-Host "     Limpiando computador"
-Write-Host "====================================="
-#>
+$urlPrincipal = "https://garciarussi.com"
+$carpetaPrincipal = "C:\Instaladores"
 # ============================================================
-# CONFIGURACIÓN
+# ACTUALIZADOR
 # ============================================================
-
-
-$archivo = Join-Path $carpetaprincipal "fondocomputadores.png"
-
-# Se divide la URL para evitar problemas al copiar el script
-$url = $urlprincial + "fondocomputadores.png"
-
+$archivoActualizador = Join-Path $carpetaPrincipal "actualizador.ps1"
+$archivoActualizadorTemp = Join-Path $carpetaPrincipal "actualizador_temp.ps1"
+$urlActualizador = "$urlPrincipal/actualizador.ps1"
 # ============================================================
-# CREAR CARPETA SI NO EXISTE
+# FONDO DE PANTALLA
 # ============================================================
-
-if (-not (Test-Path $carpeta)) {
-    New-Item -Path $carpeta -ItemType Directory -Force | Out-Null
-}
-
+$archivoFondo = Join-Path $carpetaPrincipal "fondocomputadores.png"
+$urlFondo = "$urlPrincipal/fondocomputadores.png"
 # ============================================================
-# DESCARGAR LA IMAGEN SI NO EXISTE
+# ICONO DE SCRATCH
 # ============================================================
-
-if (-not (Test-Path $archivo)) {
-
-    try {
-
-        [Net.ServicePointManager]::SecurityProtocol = `
-            [Net.SecurityProtocolType]::Tls12
-
-        Invoke-WebRequest `
-            -Uri $url `
-            -OutFile $archivo `
-            -UseBasicParsing `
-            -ErrorAction SilentlyContinue
-
-    }
-    catch {
-        exit 0
-    }
-}
-
+$archivoScratchIcono = Join-Path $carpetaPrincipal "scratch.ico"
+$urlScratchIcono = "$urlPrincipal/scratch.ico"
 # ============================================================
-# COMPROBAR QUE LA IMAGEN EXISTE ANTES DE CONTINUAR
+# ESCRITORIO
 # ============================================================
-if ((Test-Path $archivo)) {
-
-    # ============================================================
-    # COMPROBAR SI EL FONDO YA ES EL CORRECTO
-    # ============================================================
-
-    $fondoActual = (Get-ItemProperty `
-        -Path "HKCU:\Control Panel\Desktop" `
-        -Name "Wallpaper" `
-        -ErrorAction SilentlyContinue
-    ).Wallpaper
-
-    if ($fondoActual -ne $archivo) {
-
-        # ========================================================
-        # CONFIGURAR EL FONDO DE WINDOWS
-        # ========================================================
-
-        Set-ItemProperty `
-            -Path "HKCU:\Control Panel\Desktop" `
-            -Name "WallpaperStyle" `
-            -Value "10" `
-            -ErrorAction SilentlyContinue
-
-        Set-ItemProperty `
-            -Path "HKCU:\Control Panel\Desktop" `
-            -Name "TileWallpaper" `
-            -Value "0" `
-            -ErrorAction SilentlyContinue
-
-        # ========================================================
-        # APLICAR EL FONDO DE PANTALLA
-        # ========================================================
-
-        Add-Type @"
-using System;
-using System.Runtime.InteropServices;
-
-public class Wallpaper {
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    public static extern int SystemParametersInfo(
-        int uAction,
-        int uParam,
-        string lpvParam,
-        int fuWinIni
-    );
-}
-"@
-
-        # SPI_SETDESKWALLPAPER = 20
-        # SPIF_UPDATEINIFILE = 1
-        # SPIF_SENDCHANGE    = 2
-
-        [Wallpaper]::SystemParametersInfo(
-            20,
-            0,
-            $archivo,
-            3
-        ) | Out-Null
-
-    }
-}
-
-Write-Host "     Desinstalando programas no deseados"
-$ErrorActionPreference = 'SilentlyContinue'
-
+$escritorio = [Environment]::GetFolderPath("Desktop")
 # ============================================================
-# CERRAR PROCESOS
+# PROCESOS QUE SE DEBEN CERRAR
 # ============================================================
-
 $procesos = @(
     "chrome",
     "opera",
@@ -175,139 +35,69 @@ $procesos = @(
     "opera_autoupdate",
     "opera_crashreporter"
 )
-
-foreach ($proceso in $procesos) {
-    Get-Process -Name $proceso -ErrorAction SilentlyContinue |
-        Stop-Process -Force -ErrorAction SilentlyContinue
-}
-
-
 # ============================================================
-# DESINSTALAR OPERA GX
+# PROGRAMAS QUE SE DEBEN DESINSTALAR
 # ============================================================
-
-$operaGXLaunchers = @(
-    "$env:LOCALAPPDATA\Programs\Opera GX\launcher.exe",
-    "$env:ProgramFiles\Opera GX\launcher.exe",
-    "${env:ProgramFiles(x86)}\Opera GX\launcher.exe"
-)
-
-foreach ($launcher in $operaGXLaunchers) {
-
-    if (Test-Path $launcher) {
-
-        Write-Host "Desinstalando Opera GX..."
-
-        Start-Process `
-            -FilePath $launcher `
-            -ArgumentList "--uninstall", "--runimmediately", "--deleteuserprofile=1" `
-            -Wait `
-            -WindowStyle Hidden `
-            -ErrorAction SilentlyContinue
-    }
-}
-
-
-# ============================================================
-# DESINSTALAR CHROME Y OPERA NORMAL
-# ============================================================
-
 $programas = @(
     "*Google Chrome*",
     "*Opera*"
 )
-
+# ============================================================
+# UBICACIONES DEL REGISTRO DE PROGRAMAS INSTALADOS
+# ============================================================
 $uninstallPaths = @(
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
     "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
 )
-
-foreach ($path in $uninstallPaths) {
-
-    $apps = Get-ItemProperty $path -ErrorAction SilentlyContinue
-
-    foreach ($app in $apps) {
-
-        if ($app.DisplayName -and
-            ($programas | Where-Object {
-                $app.DisplayName -like $_ -and
-                $app.DisplayName -notlike "*Opera GX*"
-            })) {
-
-            if ($app.UninstallString) {
-
-                $uninstall = $app.UninstallString.Trim()
-
-                if ($uninstall -match '^"([^"]+)"\s*(.*)$') {
-                    $exe = $matches[1]
-                    $args = $matches[2]
-                }
-                else {
-                    $parts = $uninstall -split '\s+', 2
-                    $exe = $parts[0]
-
-                    $args = if ($parts.Count -gt 1) {
-                        $parts[1]
-                    }
-                    else {
-                        ""
-                    }
-                }
-
-                Start-Process `
-                    -FilePath $exe `
-                    -ArgumentList $args `
-                    -Wait `
-                    -WindowStyle Hidden `
-                    -ErrorAction SilentlyContinue
-            }
-        }
-    }
-}
-
-
 # ============================================================
-# ELIMINAR CARPETAS RESIDUALES
+# POSIBLES UBICACIONES DEL DESINSTALADOR DE OPERA GX
 # ============================================================
-
-$carpetas = @(
+$operaGXLaunchers = @(
+    "$env:LOCALAPPDATA\Programs\Opera GX\launcher.exe",
+    "$env:ProgramFiles\Opera GX\launcher.exe",
+    "${env:ProgramFiles(x86)}\Opera GX\launcher.exe"
+)
+# ============================================================
+# CARPETAS RESIDUALES DE CHROME, OPERA Y OPERA GX
+# ============================================================
+$carpetasProgramas = @(
     "$env:ProgramFiles\Google\Chrome",
     "${env:ProgramFiles(x86)}\Google\Chrome",
     "$env:LOCALAPPDATA\Google\Chrome",
     "$env:PROGRAMDATA\Google\Chrome",
-
     "$env:ProgramFiles\Opera",
     "${env:ProgramFiles(x86)}\Opera",
     "$env:LOCALAPPDATA\Programs\Opera",
     "$env:APPDATA\Opera Software",
     "$env:LOCALAPPDATA\Opera Software",
-
     "$env:ProgramFiles\Opera GX",
     "${env:ProgramFiles(x86)}\Opera GX",
     "$env:LOCALAPPDATA\Programs\Opera GX",
     "$env:APPDATA\Opera Software\Opera GX Stable",
     "$env:LOCALAPPDATA\Opera Software\Opera GX Stable"
 )
-
-foreach ($carpeta in $carpetas) {
-
-    if (Test-Path $carpeta) {
-
-        Remove-Item $carpeta `
-            -Recurse `
-            -Force `
-            -ErrorAction SilentlyContinue
-    }
-}
-
-
-# ============================================
-# CONFIGURACIÓN DE ACCESOS DIRECTOS
-# ============================================
-
-$escritorio = [Environment]::GetFolderPath("Desktop")
-
+# ============================================================
+# MICROSOFT EDGE
+# ============================================================
+$edgeUserData = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
+$edgeDefault = Join-Path $edgeUserData "Default"
+$perfilesEdge = "Profile *"
+$archivosEdgeDefault = @(
+    "History",
+    "History-journal",
+    "Visited Links",
+    "Login Data",
+    "Login Data For Account",
+    "Login Data-journal",
+    "Web Data",
+    "Web Data-journal",
+    "Cookies",
+    "Cookies-journal"
+)
+# ============================================================
+# ACCESOS DIRECTOS PERMITIDOS
+# ============================================================
 $accesos = @(
     @{
         Nombre = "Microsoft Edge.lnk"
@@ -331,168 +121,268 @@ $accesos = @(
         Argumentos = ""
     }
 )
-
-
-# ============================================
-# ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
-# ============================================
-
-$accesosPermitidos = $accesos.Nombre
-Get-ChildItem -Path $escritorio -Force -ErrorAction SilentlyContinue |
-    ForEach-Object {
-
-        if ($_.Name -notin $accesosPermitidos) {
-
-            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
-
-        }
-    }
-
-
-# ============================================
-# CREAR ACCESOS DIRECTOS QUE NO EXISTAN
-# ============================================
-
-$WshShell = New-Object -ComObject WScript.Shell
-
-foreach ($acceso in $accesos) {
-
-    $rutaAcceso = Join-Path $escritorio $acceso.Nombre
-
-    if (-not (Test-Path $rutaAcceso)) {
-
-        $shortcut = $WshShell.CreateShortcut($rutaAcceso)
-
-        $shortcut.TargetPath = $acceso.Destino
-        $shortcut.Arguments = $acceso.Argumentos
-
-        # Configurar directorio de trabajo
-        if (Test-Path $acceso.Destino -PathType Leaf) {
-            $shortcut.WorkingDirectory = Split-Path $acceso.Destino
-        }
-
-        # Configurar icono solamente si fue especificado
-        if ($acceso.ContainsKey("Icono") -and (Test-Path $acceso.Icono)) {
-            $shortcut.IconLocation = $acceso.Icono
-        }
-
-        $shortcut.Save()
-    }
-}
-
-$escritorio = [Environment]::GetFolderPath("Desktop")
-
-$archivo = $carpetaprincipal + "scratch.ico"
-$url = $urlprincial +"scratch.ico"
-
-if (-not (Test-Path $archivo)) {
-
-    Invoke-WebRequest `
-        -Uri $url `
-        -OutFile $archivo
-
-}
-$scratch = Get-StartApps | Where-Object { $_.Name -eq "Scratch 3" } | Select-Object -First 1
-
-if ($scratch) {
-
-    $rutaAcceso = Join-Path $escritorio "Scratch 3.lnk"
-
-    if (-not (Test-Path $rutaAcceso)) {
-
-        $WshShell = New-Object -ComObject WScript.Shell
-        $acceso = $WshShell.CreateShortcut($rutaAcceso)
-
-        $acceso.TargetPath = "explorer.exe"
-        $acceso.IconLocation = "C:\Instaladores\Scratch.ico"
-        $acceso.Arguments = "shell:AppsFolder\$($scratch.AppID)"
-        $acceso.Save()
-    }
-}
-
 # ============================================================
-# LIMPIAR MICROSOFT EDGE
+# CREAR CARPETA PRINCIPAL
 # ============================================================
-
-Write-Host "     Limpiando perfiles y datos de Microsoft Edge..."
-
-$edgeUserData = "$env:LOCALAPPDATA\Microsoft\Edge\User Data"
-
-# ------------------------------------------------------------
-# Cerrar Microsoft Edge
-# ------------------------------------------------------------
-
-Get-Process -Name "msedge" -ErrorAction SilentlyContinue |
-    Stop-Process -Force -ErrorAction SilentlyContinue
-
-# Pequeña espera para asegurar que los archivos queden libres
+try {
+    if (-not (Test-Path $carpetaPrincipal)) {
+        New-Item -Path $carpetaPrincipal -ItemType Directory -Force | Out-Null
+    }
+}
+catch {
+    Write-Host "No se pudo crear la carpeta principal, continuando..."
+}
+# ============================================================
+# ACTUALIZACIÓN DEL PROPIO SCRIPT
+# ============================================================
+<#
+# Este bloque está desactivado actualmente.
+try {
+    if (-not (Test-Path $archivoActualizadorTemp)) {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $urlActualizador -OutFile $archivoActualizadorTemp -UseBasicParsing -ErrorAction Stop
+    }
+    if (Test-Path $archivoActualizadorTemp) {
+        $tamanoLocal = 0
+        if (Test-Path $archivoActualizador) {
+            $tamanoLocal = (Get-Item $archivoActualizador).Length
+        }
+        $tamanoRemoto = (Get-Item $archivoActualizadorTemp).Length
+        if ($tamanoLocal -ne $tamanoRemoto) {
+            Copy-Item -Path $archivoActualizadorTemp -Destination $archivoActualizador -Force -ErrorAction Stop
+        }
+        Remove-Item -Path $archivoActualizadorTemp -Force -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    Write-Host "No se pudo actualizar el script, continuando..."
+}
+#>
+# ============================================================
+# DESCARGAR FONDO DE PANTALLA
+# ============================================================
+try {
+    if (-not (Test-Path $archivoFondo)) {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $urlFondo -OutFile $archivoFondo -UseBasicParsing -ErrorAction Stop
+    }
+}
+catch {
+    Write-Host "No se pudo descargar el fondo de pantalla, continuando..."
+}
+# ============================================================
+# APLICAR FONDO DE PANTALLA
+# ============================================================
+try {
+    if (Test-Path $archivoFondo) {
+        $fondoActual = (Get-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "Wallpaper").Wallpaper
+        if ($fondoActual -ne $archivoFondo) {
+            Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WallpaperStyle" -Value "10"
+            Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "TileWallpaper" -Value "0"
+            Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Wallpaper
+{
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SystemParametersInfo(
+        int uAction,
+        int uParam,
+        string lpvParam,
+        int fuWinIni
+    );
+}
+"@
+            [Wallpaper]::SystemParametersInfo(20, 0, $archivoFondo, 3) | Out-Null
+        }
+    }
+}
+catch {
+    Write-Host "No se pudo aplicar el fondo de pantalla, continuando..."
+}
+# ============================================================
+# CERRAR CHROME Y OPERA
+# ============================================================
+try {
+    foreach ($proceso in $procesos) {
+        Stop-Process -Name $proceso -Force -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    Write-Host "No se pudieron cerrar algunos procesos, continuando..."
+}
 Start-Sleep -Seconds 2
-
-# ------------------------------------------------------------
-# Comprobar que existe la instalación de datos
-# ------------------------------------------------------------
-
-if (Test-Path $edgeUserData) {
-
-    # --------------------------------------------------------
-    # Eliminar perfiles secundarios
-    # Conservamos únicamente "Default"
-    # --------------------------------------------------------
-
-    Get-ChildItem $edgeUserData -Directory -ErrorAction SilentlyContinue |
-        Where-Object {
-            $_.Name -like "Profile *"
-        } |
-        ForEach-Object {
-
-            Write-Host "Eliminando perfil de Edge: $($_.Name)"
-
-            Remove-Item $_.FullName `
-                -Recurse `
-                -Force `
-                -ErrorAction SilentlyContinue
+# ============================================================
+# DESINSTALAR OPERA GX
+# ============================================================
+try {
+    foreach ($launcher in $operaGXLaunchers) {
+        if (Test-Path $launcher) {
+            Start-Process -FilePath $launcher -ArgumentList "--uninstall", "--runimmediately", "--deleteuserprofile=1" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
         }
-
-    # --------------------------------------------------------
-    # Perfil principal
-    # --------------------------------------------------------
-
-    $edgeDefault = Join-Path $edgeUserData "Default"
-
-    if (Test-Path $edgeDefault) {
-
-        # Archivos relacionados con historial,
-        # credenciales, cookies y datos personales
-        $archivosEdge = @(
-            "History",
-            "History-journal",
-            "Visited Links",
-
-            "Login Data",
-            "Login Data For Account",
-            "Login Data-journal",
-
-            "Web Data",
-            "Web Data-journal",
-
-            "Cookies",
-            "Cookies-journal"
-        )
-
-        foreach ($archivo in $archivosEdge) {
-
-            $ruta = Join-Path $edgeDefault $archivo
-
-            if (Test-Path $ruta) {
-
-                Write-Host "Eliminando: $archivo"
-
-                Remove-Item $ruta `
-                    -Force `
-                    -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    Write-Host "No se pudo desinstalar Opera GX, continuando..."
+}
+# ============================================================
+# DESINSTALAR CHROME Y OPERA
+# ============================================================
+try {
+    foreach ($uninstallPath in $uninstallPaths) {
+        $aplicaciones = Get-ItemProperty -Path $uninstallPath -ErrorAction SilentlyContinue
+        foreach ($app in $aplicaciones) {
+            if ($app.DisplayName -and ($programas | Where-Object { $app.DisplayName -like $_ }) -and $app.DisplayName -notlike "*Opera GX*") {
+                if ($app.UninstallString) {
+                    $uninstallString = $app.UninstallString.Trim()
+                    if ($uninstallString.StartsWith('"')) {
+                        $partes = $uninstallString -split '"'
+                        $exe = $partes[1]
+                        $argumentos = ""
+                        if ($partes.Count -gt 2) {
+                            $argumentos = $partes[2].Trim()
+                        }
+                    }
+                    else {
+                        $partes = $uninstallString -split "\s+", 2
+                        $exe = $partes[0]
+                        $argumentos = ""
+                        if ($partes.Count -gt 1) {
+                            $argumentos = $partes[1]
+                        }
+                    }
+                    if (Test-Path $exe) {
+                        Start-Process -FilePath $exe -ArgumentList $argumentos -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
+                    }
+                }
             }
         }
     }
 }
-
-Write-Host "     Limpieza de Microsoft Edge completada."
+catch {
+    Write-Host "No se pudieron desinstalar todos los programas, continuando..."
+}
+# ============================================================
+# ELIMINAR CARPETAS RESIDUALES
+# ============================================================
+try {
+    foreach ($carpeta in $carpetasProgramas) {
+        if (Test-Path $carpeta) {
+            Remove-Item -Path $carpeta -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+catch {
+    Write-Host "No se pudieron eliminar algunas carpetas residuales, continuando..."
+}
+# ============================================================
+# DESCARGAR ICONO DE SCRATCH
+# ============================================================
+try {
+    if (-not (Test-Path $archivoScratchIcono)) {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $urlScratchIcono -OutFile $archivoScratchIcono -UseBasicParsing -ErrorAction Stop
+    }
+}
+catch {
+    Write-Host "No se pudo descargar el icono de Scratch, continuando..."
+}
+# ============================================================
+# PREPARAR LISTA DE ACCESOS PERMITIDOS
+# ============================================================
+$accesosPermitidos = @($accesos.Nombre)
+$accesosPermitidos += "Scratch 3.lnk"
+# ============================================================
+# LIMPIAR ESCRITORIO
+# ============================================================
+try {
+    Get-ChildItem -Path $escritorio -Force -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            if ($_.Name -notin $accesosPermitidos) {
+                Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+}
+catch {
+    Write-Host "No se pudo completar toda la limpieza del escritorio, continuando..."
+}
+# ============================================================
+# CREAR ACCESOS DIRECTOS
+# ============================================================
+try {
+    $WshShell = New-Object -ComObject WScript.Shell
+    foreach ($acceso in $accesos) {
+        $rutaAcceso = Join-Path $escritorio $acceso.Nombre
+        if (-not (Test-Path $rutaAcceso)) {
+            $shortcut = $WshShell.CreateShortcut($rutaAcceso)
+            $shortcut.TargetPath = $acceso.Destino
+            $shortcut.Arguments = $acceso.Argumentos
+            $shortcut.WorkingDirectory = Split-Path $acceso.Destino
+            if ($acceso.ContainsKey("Icono") -and (Test-Path $acceso.Icono)) {
+                $shortcut.IconLocation = $acceso.Icono
+            }
+            $shortcut.Save()
+        }
+    }
+}
+catch {
+    Write-Host "No se pudieron crear algunos accesos directos, continuando..."
+}
+# ============================================================
+# DETECTAR SCRATCH 3
+# ============================================================
+try {
+    $scratch = Get-StartApps | Where-Object { $_.Name -eq "Scratch 3" } | Select-Object -First 1
+}
+catch {
+    $scratch = $null
+}
+# ============================================================
+# CREAR ACCESO DIRECTO DE SCRATCH 3
+# ============================================================
+try {
+    if ($scratch) {
+        $rutaScratch = Join-Path $escritorio "Scratch 3.lnk"
+        if (-not (Test-Path $rutaScratch)) {
+            $shortcutScratch = $WshShell.CreateShortcut($rutaScratch)
+            $shortcutScratch.TargetPath = "explorer.exe"
+            $shortcutScratch.Arguments = "shell:AppsFolder\$($scratch.AppID)"
+            if (Test-Path $archivoScratchIcono) {
+                $shortcutScratch.IconLocation = $archivoScratchIcono
+            }
+            $shortcutScratch.Save()
+        }
+    }
+}
+catch {
+    Write-Host "No se pudo crear el acceso directo de Scratch 3, continuando..."
+}
+# ============================================================
+# LIMPIEZA DE MICROSOFT EDGE
+# ============================================================
+try {
+    Stop-Process -Name "msedge" -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    if (Test-Path $edgeUserData) {
+        Get-ChildItem -Path $edgeUserData -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like $perfilesEdge } |
+            ForEach-Object {
+                Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        if (Test-Path $edgeDefault) {
+            foreach ($archivoEdge in $archivosEdgeDefault) {
+                $rutaArchivoEdge = Join-Path $edgeDefault $archivoEdge
+                if (Test-Path $rutaArchivoEdge) {
+                    Remove-Item -Path $rutaArchivoEdge -Force -ErrorAction SilentlyContinue
+                }
+            }
+        }
+    }
+}
+catch {
+    Write-Host "No se pudo completar toda la limpieza de Edge, continuando..."
+}
+# ============================================================
+# FIN DEL PROCESO
+# ============================================================
+Write-Host "Proceso finalizado."
