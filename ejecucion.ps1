@@ -338,13 +338,12 @@ $accesos = @(
 # ============================================
 
 $accesosPermitidos = $accesos.Nombre
-
-Get-ChildItem -Path $escritorio -File -ErrorAction SilentlyContinue |
+Get-ChildItem -Path $escritorio -Force -ErrorAction SilentlyContinue |
     ForEach-Object {
 
         if ($_.Name -notin $accesosPermitidos) {
 
-            Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
 
         }
     }
