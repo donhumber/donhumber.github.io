@@ -1,7 +1,11 @@
 $ErrorActionPreference = "SilentlyContinue"
-$archivoLocal = "C:\Instaladores\actualizador.ps1"
-$archivoTemporal = "C:\Instaladores\actualizador_temp.ps1"
-$url = "https://garciarussi.com/actualizador.ps1"
+
+$urlprincial = "https://" + "garciarussi.com/"
+$carpetaprincipal   = "C:\Instaladores\"
+
+$archivoLocal = $carpetaprincipal + "actualizador.ps1"
+$archivoTemporal = $carpetaprincipal + "actualizador_temp.ps1"
+$url = $urlprincial + "actualizador.ps1"
 
 <# 
 Write-Host "====================================="
@@ -53,11 +57,11 @@ Write-Host "====================================="
 # CONFIGURACIÓN
 # ============================================================
 
-$carpeta = "C:\Instaladores"
-$archivo = Join-Path $carpeta "fondocomputadores.png"
+
+$archivo = Join-Path $carpetaprincipal "fondocomputadores.png"
 
 # Se divide la URL para evitar problemas al copiar el script
-$url = "https://" + "donhumber.github.io/fondocomputadores.png"
+$url = $urlprincial + "fondocomputadores.png"
 
 # ============================================================
 # CREAR CARPETA SI NO EXISTE
@@ -93,32 +97,41 @@ if (-not (Test-Path $archivo)) {
 # ============================================================
 # COMPROBAR QUE LA IMAGEN EXISTE ANTES DE CONTINUAR
 # ============================================================
+if ((Test-Path $archivo)) {
 
-if (-not (Test-Path $archivo)) {
-    exit 0
-}
+    # ============================================================
+    # COMPROBAR SI EL FONDO YA ES EL CORRECTO
+    # ============================================================
 
-# ============================================================
-# CONFIGURAR EL FONDO DE WINDOWS
-# ============================================================
+    $fondoActual = (Get-ItemProperty `
+        -Path "HKCU:\Control Panel\Desktop" `
+        -Name "Wallpaper" `
+        -ErrorAction SilentlyContinue
+    ).Wallpaper
 
-Set-ItemProperty `
-    -Path "HKCU:\Control Panel\Desktop" `
-    -Name "WallpaperStyle" `
-    -Value "10" `
-    -ErrorAction SilentlyContinue
+    if ($fondoActual -ne $archivo) {
 
-Set-ItemProperty `
-    -Path "HKCU:\Control Panel\Desktop" `
-    -Name "TileWallpaper" `
-    -Value "0" `
-    -ErrorAction SilentlyContinue
+        # ========================================================
+        # CONFIGURAR EL FONDO DE WINDOWS
+        # ========================================================
 
-# ============================================================
-# APLICAR EL FONDO DE PANTALLA
-# ============================================================
+        Set-ItemProperty `
+            -Path "HKCU:\Control Panel\Desktop" `
+            -Name "WallpaperStyle" `
+            -Value "10" `
+            -ErrorAction SilentlyContinue
 
-Add-Type @"
+        Set-ItemProperty `
+            -Path "HKCU:\Control Panel\Desktop" `
+            -Name "TileWallpaper" `
+            -Value "0" `
+            -ErrorAction SilentlyContinue
+
+        # ========================================================
+        # APLICAR EL FONDO DE PANTALLA
+        # ========================================================
+
+        Add-Type @"
 using System;
 using System.Runtime.InteropServices;
 
@@ -133,17 +146,19 @@ public class Wallpaper {
 }
 "@
 
-# SPI_SETDESKWALLPAPER = 20
-# SPIF_UPDATEINIFILE = 1
-# SPIF_SENDCHANGE    = 2
+        # SPI_SETDESKWALLPAPER = 20
+        # SPIF_UPDATEINIFILE = 1
+        # SPIF_SENDCHANGE    = 2
 
-[Wallpaper]::SystemParametersInfo(
-    20,
-    0,
-    $archivo,
-    3
-) | Out-Null
+        [Wallpaper]::SystemParametersInfo(
+            20,
+            0,
+            $archivo,
+            3
+        ) | Out-Null
 
+    }
+}
 
 Write-Host "     Desinstalando programas no deseados"
 $ErrorActionPreference = 'SilentlyContinue'
