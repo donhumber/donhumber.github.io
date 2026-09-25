@@ -337,13 +337,9 @@ $accesos = @(
 # ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
 # ============================================
 
-# ============================================
-# ELIMINAR ACCESOS DIRECTOS NO AUTORIZADOS
-# ============================================
-
 $accesosPermitidos = $accesos.Nombre
 
-Get-ChildItem -Path $escritorio -Filter "*.lnk" -File -ErrorAction SilentlyContinue |
+Get-ChildItem -Path $escritorio -File -ErrorAction SilentlyContinue |
     ForEach-Object {
 
         if ($_.Name -notin $accesosPermitidos) {
